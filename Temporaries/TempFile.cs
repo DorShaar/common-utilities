@@ -1,4 +1,7 @@
-﻿namespace Temporaries;
+﻿using System;
+using System.IO;
+
+namespace Temporaries;
 
 public class TempFile : IDisposable
 {
