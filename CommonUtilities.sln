@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonSerialization", "JsonSe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{71B95167-F39B-406F-9A6F-33CAFE5BD0A3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartTasks", "SmartTasks\SmartTasks.csproj", "{69B56123-AF13-47C9-8174-C3B0BF3D7140}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeTracers", "TimeTracers\TimeTracers.csproj", "{3CC95F4A-C961-4942-9BEC-5FE65422B95E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{71B95167-F39B-406F-9A6F-33CAFE5BD0A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{71B95167-F39B-406F-9A6F-33CAFE5BD0A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71B95167-F39B-406F-9A6F-33CAFE5BD0A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69B56123-AF13-47C9-8174-C3B0BF3D7140}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69B56123-AF13-47C9-8174-C3B0BF3D7140}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69B56123-AF13-47C9-8174-C3B0BF3D7140}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69B56123-AF13-47C9-8174-C3B0BF3D7140}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CC95F4A-C961-4942-9BEC-5FE65422B95E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CC95F4A-C961-4942-9BEC-5FE65422B95E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CC95F4A-C961-4942-9BEC-5FE65422B95E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CC95F4A-C961-4942-9BEC-5FE65422B95E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
