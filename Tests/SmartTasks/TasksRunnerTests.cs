@@ -8,7 +8,7 @@ namespace Tests.SmartTasks;
 public class TasksRunnerTests
 {
     [Fact]
-    public void RunTask_TaskCountIsMaximalAllowed_Blocking()
+    public async Task RunTask_TaskCountIsMaximalAllowed_Blocking()
     {
         TasksRunner tasksRunner = new(1, TimeSpan.FromSeconds(1), NullLogger<TasksRunner>.Instance);
         TimeTracer timeTracer;
@@ -17,7 +17,7 @@ public class TasksRunnerTests
         using (timeTracer = new TimeTracer())
         {
             Task task = CreateTaskToBeFinishedIn(taskDuration);
-            tasksRunner.RunTask(task, CancellationToken.None);    
+            await tasksRunner.RunTask(task, CancellationToken.None);    
         }
         
         Assert.True(timeTracer.TimeTrace.Elapsed.TotalSeconds > 5);
@@ -34,18 +34,18 @@ public class TasksRunnerTests
         using (timeTracer = new TimeTracer())
         {
             task = CreateTaskToBeFinishedIn(taskDuration);
-            tasksRunner.RunTask(task, CancellationToken.None);    
+            await tasksRunner.RunTask(task, CancellationToken.None);    
         }
 
-        Assert.True(timeTracer.TimeTrace.Elapsed.TotalSeconds < 4);
+        Assert.True(timeTracer.TimeTrace.Elapsed.TotalSeconds < 4, "Waited less than 4 seconds");
         Assert.False(task.IsCompleted);
 
         await Task.Delay(taskDuration).ConfigureAwait(false);
         Assert.True(task.IsCompleted);
     }
-    
+
     [Fact]
-    public void WaitAll_WaitingForAllTasks_WaitForAllTasksToBeCompleted()
+    public async Task WaitAll_WaitingForAllTasks_WaitForAllTasksToBeCompleted()
     {
         TasksRunner tasksRunner = new(3, TimeSpan.FromSeconds(1), NullLogger<TasksRunner>.Instance);
         
@@ -59,19 +59,19 @@ public class TasksRunnerTests
             TimeTracer startAllTasksTimeTracer;
             using (startAllTasksTimeTracer = new TimeTracer())
             {
-                tasksRunner.RunTask(task1, CancellationToken.None);    
-                tasksRunner.RunTask(task2, CancellationToken.None);
+                await tasksRunner.RunTask(task1, CancellationToken.None);    
+                await tasksRunner.RunTask(task2, CancellationToken.None);
             
                 // This should be block for about 1 second.
-                tasksRunner.RunTask(task3, CancellationToken.None);    
+                await tasksRunner.RunTask(task3, CancellationToken.None);
             }
         
-            Assert.True(startAllTasksTimeTracer.TimeTrace.Elapsed.TotalSeconds < 2);
+            Assert.True(startAllTasksTimeTracer.TimeTrace.Elapsed.TotalSeconds < 2, "Waited less than 2 seconds");
 
-            _ = tasksRunner.WaitAll(CancellationToken.None);
+            await tasksRunner.WaitAll(CancellationToken.None);
         }
         
-        Assert.True(waitForAllTasksTimeTracer.TimeTrace.Elapsed.TotalSeconds > 5);
+        Assert.True(waitForAllTasksTimeTracer.TimeTrace.Elapsed.TotalSeconds > 5, "Waited less than 5 seconds");
     }
 
     private Task CreateTaskToBeFinishedIn(TimeSpan timeSpan)

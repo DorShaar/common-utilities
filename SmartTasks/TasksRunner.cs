@@ -9,15 +9,15 @@ public class TasksRunner
     private readonly TimeSpan mDefaultIntervalForCheckingAvailableSlot = TimeSpan.FromMilliseconds(500);
     private readonly ILogger<TasksRunner>? mLogger;
     
-    public TasksRunner(ushort allowedParallelTasks, TimeSpan iIntervalForCheckingAvailableSlot, ILogger<TasksRunner>? logger = null)
+    public TasksRunner(ushort allowedParallelTasks, TimeSpan intervalForCheckingAvailableSlot, ILogger<TasksRunner>? logger = null)
     {
         ushort fixedAllowedParallelTasks = allowedParallelTasks == 0u ? (ushort)1 : allowedParallelTasks;
         mAllRunningTasks = new Task[fixedAllowedParallelTasks];
 
-        mIntervalForCheckingAvailableSlot = iIntervalForCheckingAvailableSlot == TimeSpan.Zero
+        mIntervalForCheckingAvailableSlot = intervalForCheckingAvailableSlot == TimeSpan.Zero
             ? mDefaultIntervalForCheckingAvailableSlot
-            : iIntervalForCheckingAvailableSlot;  
-        mIntervalForCheckingAvailableSlot = iIntervalForCheckingAvailableSlot;
+            : intervalForCheckingAvailableSlot;  
+        mIntervalForCheckingAvailableSlot = intervalForCheckingAvailableSlot;
         
         mLogger = logger;
     }
@@ -25,10 +25,11 @@ public class TasksRunner
     /// <summary>
     /// Becomes blocking operation when maximal tasks allowed are running.
     /// </summary>
-    public void RunTask(Task task, CancellationToken cancellationToken)
+    public async Task RunTask(Task task, CancellationToken cancellationToken)
     {
         ushort? indexToPlaceTask = null;
 
+        int callNumber = 0;
         while (indexToPlaceTask is null)
         {
             if (cancellationToken.IsCancellationRequested)
@@ -36,22 +37,28 @@ public class TasksRunner
                 mLogger?.LogInformation($"Cancel requested");
                 break;
             }
-            
-            indexToPlaceTask = TryFindIndexToLocateTask();
-            Task.Delay(mIntervalForCheckingAvailableSlot, cancellationToken);
+
+            callNumber++;
+            indexToPlaceTask = TryFindIndexToLocateTask(ref callNumber);
+
+            if (indexToPlaceTask is null)
+            {
+                await Task.Delay(mIntervalForCheckingAvailableSlot, cancellationToken);
+            }
         }
 
         if (indexToPlaceTask is null)
         {
+            // In case of cancellation.
             return;
         }
         
         InsertTaskByIndex(indexToPlaceTask.Value, task);
 
-        WaitOneIfRequired(cancellationToken);
+        await WaitOneIfRequired(cancellationToken);
     }
 
-    public bool WaitAll(CancellationToken cancellationToken)
+    public async Task<bool> WaitAll(CancellationToken cancellationToken)
     {
         for (ushort i = 0; i < mAllRunningTasks.Length; ++i)
         {
@@ -65,7 +72,7 @@ public class TasksRunner
                     return false;
                 }
                 
-                Task.Delay(mIntervalForCheckingAvailableSlot, cancellationToken);
+                await Task.Delay(mIntervalForCheckingAvailableSlot, cancellationToken);
             }
         }
 
@@ -75,9 +82,10 @@ public class TasksRunner
     /// <summary>
     /// Waits for one slot to be available. 
     /// </summary>
-    private void WaitOneIfRequired(CancellationToken cancellationToken)
+    private async Task WaitOneIfRequired(CancellationToken cancellationToken)
     {
         ushort? indexToPlaceTask = null;
+        int callNumber = 0;
         while (indexToPlaceTask is null)
         {
             if (cancellationToken.IsCancellationRequested)
@@ -85,30 +93,45 @@ public class TasksRunner
                 mLogger?.LogInformation($"Cancel requested");
                 break;
             }
-            
-            indexToPlaceTask = TryFindIndexToLocateTask();
-            Task.Delay(mIntervalForCheckingAvailableSlot, cancellationToken);
+
+            callNumber++;
+            indexToPlaceTask = TryFindIndexToLocateTask(ref callNumber);
+
+            if (indexToPlaceTask is null)
+            {
+                await Task.Delay(mIntervalForCheckingAvailableSlot, cancellationToken);
+            }
         }
 
         if (!cancellationToken.IsCancellationRequested)
         {
-            mLogger?.LogInformation($"At least one task slot is available");   
+            mLogger?.LogTrace($"At least one task slot is available");   
         }
     }
 
-    private ushort? TryFindIndexToLocateTask()
+    private ushort? TryFindIndexToLocateTask(ref int callNumber)
     {
         for (ushort i = 0; i < mAllRunningTasks.Length; ++i)
         {
             Task? task = mAllRunningTasks[i];
             if (task is null || task.IsCompleted)
             {
-                mLogger?.LogDebug($"Found available slot at index {i}");
+                mLogger?.LogTrace($"Found available slot at index {i}");
                 return i;
             }
+            
+            mLogger?.LogTrace($"Slot at index {i} has running task");
         }
 
-        mLogger?.LogDebug("No available slot found");
+        if (callNumber == 1 || callNumber % 1000 == 0)
+        {
+            mLogger?.LogTrace("No available slot found");
+            if (callNumber % 1000 == 0)
+            {
+                callNumber = 0;
+            }
+        }
+        
         return null;
     }
 
@@ -117,6 +140,7 @@ public class TasksRunner
         Task? oldTask = mAllRunningTasks[indexToPlaceTask];
         oldTask?.Dispose();
 
+        mLogger?.LogTrace($"Inserting task into index {indexToPlaceTask}");
         mAllRunningTasks[indexToPlaceTask] = task;
     }
 }
