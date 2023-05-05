@@ -6,20 +6,22 @@ public class TasksRunner
 {
     private readonly Task?[] mAllRunningTasks;
     private readonly TimeSpan mIntervalForCheckingAvailableSlot;
-    private readonly TimeSpan mDefaultIntervalForCheckingAvailableSlot = TimeSpan.FromMilliseconds(500);
+    private readonly uint? mNoAvailableSlotLogInterval;
     private readonly ILogger<TasksRunner>? mLogger;
     
-    public TasksRunner(ushort allowedParallelTasks, TimeSpan intervalForCheckingAvailableSlot, ILogger<TasksRunner>? logger = null)
+    public TasksRunner(TasksRunnerConfigurations tasksRunnerConfigurations)
     {
-        ushort fixedAllowedParallelTasks = allowedParallelTasks == 0u ? (ushort)1 : allowedParallelTasks;
+        ushort fixedAllowedParallelTasks = tasksRunnerConfigurations.AllowedParallelTasks == 0u 
+            ? (ushort)1 
+            : tasksRunnerConfigurations.AllowedParallelTasks;
         mAllRunningTasks = new Task[fixedAllowedParallelTasks];
 
-        mIntervalForCheckingAvailableSlot = intervalForCheckingAvailableSlot == TimeSpan.Zero
-            ? mDefaultIntervalForCheckingAvailableSlot
-            : intervalForCheckingAvailableSlot;  
-        mIntervalForCheckingAvailableSlot = intervalForCheckingAvailableSlot;
-        
-        mLogger = logger;
+        mIntervalForCheckingAvailableSlot = tasksRunnerConfigurations.IntervalForCheckingAvailableSlot == TimeSpan.Zero
+            ? throw new ArgumentException($"{nameof(tasksRunnerConfigurations.IntervalForCheckingAvailableSlot)} cannot be zero")
+            : tasksRunnerConfigurations.IntervalForCheckingAvailableSlot;
+
+        mNoAvailableSlotLogInterval = tasksRunnerConfigurations.NoAvailableSlotLogInterval ?? 1000;
+        mLogger = tasksRunnerConfigurations.Logger;
     }
 
     /// <summary>
@@ -125,10 +127,10 @@ public class TasksRunner
             mLogger?.LogTrace($"Slot at index {i} has running task");
         }
 
-        if (callNumber == 1 || callNumber % 1000 == 0)
+        if (callNumber == 1 || callNumber % mNoAvailableSlotLogInterval == 0)
         {
             mLogger?.LogTrace("No available slot found");
-            if (callNumber % 1000 == 0)
+            if (callNumber % mNoAvailableSlotLogInterval == 0)
             {
                 callNumber = 0;
             }

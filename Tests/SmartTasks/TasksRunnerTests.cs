@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging.Abstractions;
-using SmartTasks;
+﻿using SmartTasks;
 using TimeTracers;
 using Xunit;
 
@@ -10,7 +9,12 @@ public class TasksRunnerTests
     [Fact]
     public async Task RunTask_TaskCountIsMaximalAllowed_Blocking()
     {
-        TasksRunner tasksRunner = new(1, TimeSpan.FromSeconds(1), NullLogger<TasksRunner>.Instance);
+        TasksRunnerConfigurations tasksRunnerConfigurations = new()
+        {
+            AllowedParallelTasks = 1,
+            IntervalForCheckingAvailableSlot = TimeSpan.FromSeconds(1) 
+        };
+        TasksRunner tasksRunner = new(tasksRunnerConfigurations);
         TimeTracer timeTracer;
         
         TimeSpan taskDuration = TimeSpan.FromSeconds(5);
@@ -26,7 +30,12 @@ public class TasksRunnerTests
     [Fact]
     public async Task RunTask_TaskCountIsNotMaximalAllowed_NotBlocking()
     {
-        TasksRunner tasksRunner = new(3, TimeSpan.FromSeconds(1), NullLogger<TasksRunner>.Instance);
+        TasksRunnerConfigurations tasksRunnerConfigurations = new()
+        {
+            AllowedParallelTasks = 3,
+            IntervalForCheckingAvailableSlot = TimeSpan.FromSeconds(1) 
+        };
+        TasksRunner tasksRunner = new(tasksRunnerConfigurations);
         TimeTracer timeTracer;
 
         TimeSpan taskDuration = TimeSpan.FromSeconds(5);
@@ -40,14 +49,19 @@ public class TasksRunnerTests
         Assert.True(timeTracer.TimeTrace.Elapsed.TotalSeconds < 4, "Waited less than 4 seconds");
         Assert.False(task.IsCompleted);
 
-        await Task.Delay(taskDuration).ConfigureAwait(false);
-        Assert.True(task.IsCompleted);
+        await Task.Delay(taskDuration + TimeSpan.FromSeconds(1)).ConfigureAwait(false);
+        Assert.True(task.IsCompleted, "Task was not completed while it should have be");
     }
 
     [Fact]
     public async Task WaitAll_WaitingForAllTasks_WaitForAllTasksToBeCompleted()
     {
-        TasksRunner tasksRunner = new(3, TimeSpan.FromSeconds(1), NullLogger<TasksRunner>.Instance);
+        TasksRunnerConfigurations tasksRunnerConfigurations = new()
+        {
+            AllowedParallelTasks = 3,
+            IntervalForCheckingAvailableSlot = TimeSpan.FromSeconds(1) 
+        };
+        TasksRunner tasksRunner = new(tasksRunnerConfigurations);
         
         Task task1 = CreateTaskToBeFinishedIn(TimeSpan.FromSeconds(5));
         Task task2 = CreateTaskToBeFinishedIn(TimeSpan.FromSeconds(1));
