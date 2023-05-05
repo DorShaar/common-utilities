@@ -60,6 +60,8 @@ public class TasksRunner
 
     public async Task<bool> WaitAll(CancellationToken cancellationToken)
     {
+        mLogger?.LogInformation($"Waiting for all tasks to complete");
+        
         for (ushort i = 0; i < mAllRunningTasks.Length; ++i)
         {
             Task? task = mAllRunningTasks[i];
