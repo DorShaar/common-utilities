@@ -23,6 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\IOWrapper\IOWrapper.csproj" />
       <ProjectReference Include="..\JsonSerialization\JsonSerialization.csproj" />
       <ProjectReference Include="..\SmartTasks\SmartTasks.csproj" />
       <ProjectReference Include="..\TimeTracers\TimeTracers.csproj" />

@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartTasks", "SmartTasks\Sm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeTracers", "TimeTracers\TimeTracers.csproj", "{3CC95F4A-C961-4942-9BEC-5FE65422B95E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IOWrapper", "IOWrapper\IOWrapper.csproj", "{EC479443-435F-4F63-9D95-AD3AD2D13CCA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{3CC95F4A-C961-4942-9BEC-5FE65422B95E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3CC95F4A-C961-4942-9BEC-5FE65422B95E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3CC95F4A-C961-4942-9BEC-5FE65422B95E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC479443-435F-4F63-9D95-AD3AD2D13CCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC479443-435F-4F63-9D95-AD3AD2D13CCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC479443-435F-4F63-9D95-AD3AD2D13CCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC479443-435F-4F63-9D95-AD3AD2D13CCA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
