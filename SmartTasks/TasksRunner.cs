@@ -4,6 +4,8 @@ namespace SmartTasks;
 
 public class TasksRunner
 {
+    private const uint mNoAvailableSlotDefaultLogInterval = 1000;
+    
     private readonly Task?[] mAllRunningTasks;
     private readonly TimeSpan mIntervalForCheckingAvailableSlot;
     private readonly uint? mNoAvailableSlotLogInterval;
@@ -20,7 +22,7 @@ public class TasksRunner
             ? throw new ArgumentException($"{nameof(tasksRunnerConfigurations.IntervalForCheckingAvailableSlot)} cannot be zero")
             : tasksRunnerConfigurations.IntervalForCheckingAvailableSlot;
 
-        mNoAvailableSlotLogInterval = tasksRunnerConfigurations.NoAvailableSlotLogInterval ?? 1000;
+        mNoAvailableSlotLogInterval = tasksRunnerConfigurations.NoAvailableSlotLogInterval ?? mNoAvailableSlotDefaultLogInterval;
         mLogger = tasksRunnerConfigurations.Logger;
     }
 
@@ -123,8 +125,11 @@ public class TasksRunner
                 mLogger?.LogTrace($"Found available slot at index {i}");
                 return i;
             }
-            
-            mLogger?.LogTrace($"Slot at index {i} has running task");
+
+            if (callNumber == 1 || callNumber % mNoAvailableSlotLogInterval == 0)
+            {
+                mLogger?.LogTrace($"Slot at index {i} has running task");
+            }
         }
 
         if (callNumber == 1 || callNumber % mNoAvailableSlotLogInterval == 0)
