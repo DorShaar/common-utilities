@@ -9,18 +9,19 @@ public class JsonSerializer : IJsonSerializer
         NullValueHandling = NullValueHandling.Ignore,
     };
     
-    public void Serialize<T>(T objectToSerialize, string databasePath)
+    public async Task SerializeAsync<T>(T objectToSerialize, string filePath, CancellationToken cancellationToken)
     {
         string jsonText = JsonConvert.SerializeObject(objectToSerialize, Formatting.Indented);
-        File.WriteAllText(databasePath, jsonText);
-        Console.WriteLine($"Serialized object {typeof(T)} into {databasePath}");
+        await File.WriteAllTextAsync(filePath, jsonText, cancellationToken);
+        Console.WriteLine($"Serialized object {typeof(T)} into file '{filePath}'");
     }
 
-    public T Deserialize<T>(string databasePath)
+    public async Task<T> DeserializeAsync<T>(string filePath, CancellationToken cancellationToken)
     {
-        T deserializedObject = JsonConvert.DeserializeObject<T>(File.ReadAllText(databasePath), mSettings)
-                               ?? throw new NullReferenceException($"Failed to deserialize '{databasePath}'");
-        Console.WriteLine($"Deserialized object {typeof(T)} from {databasePath}");
+        string text = await File.ReadAllTextAsync(filePath, cancellationToken);
+        T deserializedObject = JsonConvert.DeserializeObject<T>(text, mSettings)
+                               ?? throw new NullReferenceException($"Failed to deserialize '{filePath}'");
+        Console.WriteLine($"Deserialized object {typeof(T)} from {filePath}");
             
         return deserializedObject;
     }

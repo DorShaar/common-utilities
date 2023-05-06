@@ -6,7 +6,7 @@ namespace Tests;
 public class JsonSerializerTests
 {
     [Fact]
-    public void SerializeAndDeserialize_Success()
+    public async Task SerializeAndDeserialize_Success()
     {
         JsonSerializer jsonSerializer = new();
 
@@ -20,9 +20,9 @@ public class JsonSerializerTests
 
         try
         {
-            jsonSerializer.Serialize(hashToFilePathDict, tempFile);
+            await jsonSerializer.SerializeAsync(hashToFilePathDict, tempFile, CancellationToken.None).ConfigureAwait(false);
             Dictionary<string, List<string>> testedHashToFilePathDict =
-                jsonSerializer.Deserialize<Dictionary<string, List<string>>>(tempFile);
+                await jsonSerializer.DeserializeAsync<Dictionary<string, List<string>>>(tempFile, CancellationToken.None).ConfigureAwait(false);
 
             Assert.Equal(hashToFilePathDict["abc"][0], testedHashToFilePathDict["abc"][0]);
             Assert.Equal(hashToFilePathDict["abc"][1], testedHashToFilePathDict["abc"][1]);

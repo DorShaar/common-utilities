@@ -4,7 +4,7 @@ namespace JsonSerialization;
 
 public interface IJsonSerializer
 {
-    void Serialize<T>(T objectToSerialize, string outputPath);
-    T Deserialize<T>(string inputPath);
+    Task SerializeAsync<T>(T objectToSerialize, string filePath, CancellationToken cancellationToken);
+    Task<T> DeserializeAsync<T>(string filePath, CancellationToken cancellationToken);
     void AddConverters(JsonConverter jsonConverter);
 }
