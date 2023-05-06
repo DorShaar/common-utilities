@@ -27,7 +27,6 @@ public class FileSystemPath
         return new FileSystemPath(replacedPathString);
     }
 
-    // TODO DOR now tests
     public FileSystemPath GetRelativePath(string relativeTo)
     {
         FileSystemPath relativeToPath = new(relativeTo);
@@ -36,10 +35,26 @@ public class FileSystemPath
             throw new ArgumentException($"Path {PathString} is not relative to {relativeTo}");
         }
 
-        string relativePathString = PathString.Replace(relativeTo, string.Empty);
+        string relativePathString = PathString.Replace(relativeToPath.PathString, string.Empty);
         return new FileSystemPath(relativePathString);
     }
 
+    public FileSystemPath Combine(string pathToCombineFromRight)
+    {
+        return Combine(new FileSystemPath(pathToCombineFromRight));
+    }
+    
+    public FileSystemPath Combine(FileSystemPath pathToCombineFromRight)
+    {
+        string combinedPath = PathString.TrimEnd('/') + '/' + pathToCombineFromRight.PathString.TrimStart('/');
+        return new FileSystemPath(combinedPath);
+    }
+    
+    public bool IsPathRelative()
+    {
+        return PathString.StartsWith('/') && PathString.Length > 1;
+    }
+    
     private static string PreparePath(string path)
     {
         string pathWithUnixCharSeparators = path.Replace('\\', '/');

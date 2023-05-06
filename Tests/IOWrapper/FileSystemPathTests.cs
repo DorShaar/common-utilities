@@ -90,14 +90,51 @@ public class FileSystemPathTests
         Assert.Throws<ArgumentException>(() => path.GetRelativePath(nonRelativeToPath));
     }
     
+    [Theory]
+    [InlineData("C:\\dor\\folder1\\games\\princeOfPersia", "C:/dor/folder1/", "/games/princeOfPersia")]
+    [InlineData("C:/FilesHashesHandlerTests/bin/Debug/net7.0/Games/file in games directory.txt",
+        "C:\\FilesHashesHandlerTests\\bin\\Debug\\net7.0",
+        "/Games/file in games directory.txt")]
+    public void GetRelativePath_PathAreRelative_ReturnsRelativePath(string path, string relativeTo, string expectedPath)
+    {
+        FileSystemPath fileSystemPath = new(path);
+
+        FileSystemPath relativePath = fileSystemPath.GetRelativePath(relativeTo);
+        
+        Assert.Equal(expectedPath, relativePath.PathString);
+    }
+    
     [Fact]
-    public void GetRelativePath_PathAreRelative_ReturnsRelativePath()
+    public void Combine_Path1HasCharSeparatorAtTheBeginning_CombinedAsExpected()
+    {
+        FileSystemPath path = new("\\dor\\folder1\\games\\princeOfPersia");
+        const string path2 = "folder/file";
+
+        FileSystemPath combinedPath = path.Combine(path2);
+        Assert.Equal("/dor/folder1/games/princeOfPersia/folder/file", combinedPath.PathString);
+    }
+    
+    [Fact]
+    public void Combine_Path2HasCharSeparatorAtTheBeginning_CombinedAsExpected()
     {
         FileSystemPath path = new("C:\\dor\\folder1\\games\\princeOfPersia");
-        const string relativeTo = "C:/dor/folder1/";
+        const string path2 = "/folder/file";
 
-        FileSystemPath relativePath = path.GetRelativePath(relativeTo);
-        
-        Assert.Equal("/games/princeOfPersia", relativePath.PathString);
+        FileSystemPath combinedPath = path.Combine(path2);
+        Assert.Equal("C:/dor/folder1/games/princeOfPersia/folder/file", combinedPath.PathString);
+    }
+
+    [Fact]
+    public void IsPathRelative_RootedPath_False()
+    {
+        FileSystemPath rootedPath = new("C:\\dor\\folder1\\games\\princeOfPersia");
+        Assert.False(rootedPath.IsPathRelative());
+    }
+    
+    [Fact]
+    public void IsPathRelative_NonRootedPath_True()
+    {
+        FileSystemPath rootedPath = new("\\dor\\folder1\\games\\princeOfPersia");
+        Assert.True(rootedPath.IsPathRelative());
     }
 }
