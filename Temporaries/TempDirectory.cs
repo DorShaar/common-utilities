@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace Temporaries;
+﻿namespace Temporaries;
 
 public class TempDirectory : IDisposable
 {
@@ -19,9 +16,9 @@ public class TempDirectory : IDisposable
         Path = Directory.CreateDirectory(directoryPath).FullName;
     }
 
-    public static TempDirectory CreateTemporaryDirectory(string iDirName)
+    public static TempDirectory CreateTemporaryDirectory(string directoryName)
     {
-        TempDirectory tempFile = new(iDirName);
+        TempDirectory tempFile = new(directoryName);
 
         return tempFile;
     }
@@ -39,5 +36,10 @@ public class TempDirectory : IDisposable
         {
             Directory.Delete(Path, recursive: true);
         }
+    }
+    
+    public override string ToString()
+    {
+        return Path;
     }
 }

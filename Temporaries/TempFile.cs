@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace Temporaries;
+﻿namespace Temporaries;
 
 public class TempFile : IDisposable
 {
@@ -23,15 +20,15 @@ public class TempFile : IDisposable
         Path = filePath;
     }
 
-    public static TempFile CopyFromExistingFile(string existingFile)
+    public static TempFile CopyFromExistingFile(string existingFilePath)
     {
-        if (!File.Exists(existingFile))
+        if (!File.Exists(existingFilePath))
         {
-            throw new FileNotFoundException(existingFile);
+            throw new FileNotFoundException(existingFilePath);
         }
 
         TempFile tempFile = new(System.IO.Path.GetRandomFileName());
-        File.Copy(existingFile, tempFile.Path);
+        File.Copy(existingFilePath, tempFile.Path);
 
         return tempFile;
     }
@@ -46,5 +43,10 @@ public class TempFile : IDisposable
     public void Dispose()
     {
         File.Delete(Path);
+    }
+
+    public override string ToString()
+    {
+        return Path;
     }
 }
