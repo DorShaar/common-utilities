@@ -27,6 +27,7 @@
       <ProjectReference Include="..\JsonSerialization\JsonSerialization.csproj" />
       <ProjectReference Include="..\SmartTasks\SmartTasks.csproj" />
       <ProjectReference Include="..\TimeTracers\TimeTracers.csproj" />
+      <ProjectReference Include="..\WindowsServiceHandle\WindowsServiceHandle.csproj" />
     </ItemGroup>
 
 </Project>
