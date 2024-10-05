@@ -24,8 +24,7 @@ public class WindowsServiceManagerTests
 		Assert.True(windowsServiceManager.StopService(serviceName));
 	}
 	
-	// [Fact(Skip="Requires real service")]
-	[Fact]
+	[Fact(Skip="Requires real service")]
 	public async Task StopService_ServiceRunning_ReturnTrue()
 	{
 		const string serviceName = "Dor Backuper Service";
