@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using WindowsServiceHandle.Enums;
+using WindowsServiceHandler;
 
 namespace WindowsServiceHandle;
 
@@ -102,8 +103,12 @@ public class WindowsServiceManager
 				mLogger.LogInformation($"While trying to start, service {serviceName} already running");
 				return true;
 			}
-			
-			mLogger.LogError($"Failed to start service {serviceName}. Error code: {errorCode}");
+
+			string errorMessage = WinApiErrorMessags.GetErrorMessage(errorCode);
+			mLogger.LogError("Failed to start service {serviceName}. Error code: {errorCode}. Message: {errorMessage}",
+				serviceName,
+				errorCode,
+                errorMessage);
 			return false;
 		}
 
@@ -136,8 +141,12 @@ public class WindowsServiceManager
 					mLogger.LogInformation($"While trying to stop, service {serviceName} not exist");
 					return true;
 				}
-			
-				mLogger.LogError($"Failed to stop service {serviceName}. Error code: {errorCode}");
+
+                string errorMessage = WinApiErrorMessags.GetErrorMessage(errorCode);
+                mLogger.LogError("Failed to stop service {serviceName}. Error code: {errorCode}. Message: {errorMessage}",
+								 serviceName,
+								 errorCode,
+								 errorMessage);
 				return false;
 			}
 
@@ -202,7 +211,12 @@ public class WindowsServiceManager
 		ServiceStatus serviceStatus = new();
 		if (QueryServiceStatus(serviceHandle.Handle, serviceStatus) == 0)
 		{
-			mLogger.LogError($"Could not get service status for '{serviceName}', error code {Marshal.GetLastWin32Error()}");
+			var errorCode = Marshal.GetLastWin32Error();
+            string errorMessage = WinApiErrorMessags.GetErrorMessage(errorCode);
+            mLogger.LogError("Could not get service status for '{serviceName}'. Error code: {errorCode}. Message: {errorMessage}",
+                             serviceName,
+                             errorCode,
+                             errorMessage);
 			return ServiceStatuses.Unknown;
 		}
 
